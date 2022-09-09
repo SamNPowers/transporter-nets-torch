@@ -6,6 +6,7 @@
 
 import os
 
+import torch.nn as nn
 import numpy as np
 from ravens_torch.models.attention import Attention
 from ravens_torch.models.transport import Transport
@@ -15,10 +16,11 @@ from ravens_torch.tasks import cameras
 from ravens_torch.utils import utils
 
 
-class TransporterAgent:
+class TransporterAgent(nn.Module):
     """Agent that uses Transporter Networks."""
 
     def __init__(self, name, task, root_dir, n_rotations=36):
+        super().__init__()
         self.name = name
         self.task = task
         self.total_steps = 0
@@ -104,10 +106,11 @@ class TransporterAgent:
         else:
             loss1 = self.transport.train(img, p0, p1, p1_theta)
 
-        writer.add_scalars([
-            ('train_loss/attention', loss0, step),
-            ('train_loss/transport', loss1, step),
-        ])
+        if writer is not None:
+            writer.add_scalars([
+                ('train_loss/attention', loss0, step),
+                ('train_loss/transport', loss1, step),
+            ])
 
         print(
             f'Train Iter: {step} \t Attention Loss: {loss0:.4f} \t Transport Loss: {loss1:.4f}')
@@ -131,6 +134,8 @@ class TransporterAgent:
         #   loss1 = self.transport.train(img_curr, img_goal, p0, p1, p1_theta)
         # else:
         #   loss1 = self.transport.train(input_image, p0, p1, p1_theta)
+
+        return loss0, loss1
 
     def validate(self, dataset, writer=None):  # pylint: disable=unused-argument
         """Test on a validation dataset for 10 iterations."""
@@ -246,8 +251,8 @@ class TransporterAgent:
 
 class OriginalTransporterAgent(TransporterAgent):
 
-    def __init__(self, name, task, n_rotations=36, verbose=False):
-        super().__init__(name, task, n_rotations)
+    def __init__(self, name, task, root_dir, n_rotations=36, verbose=False):
+        super().__init__(name, task, root_dir, n_rotations)
 
         self.attention = Attention(
             in_shape=self.in_shape,
@@ -264,8 +269,8 @@ class OriginalTransporterAgent(TransporterAgent):
 
 class NoTransportTransporterAgent(TransporterAgent):
 
-    def __init__(self, name, task, n_rotations=36, verbose=False):
-        super().__init__(name, task, n_rotations)
+    def __init__(self, name, task, root_dir, n_rotations=36, verbose=False):
+        super().__init__(name, task, root_dir, n_rotations)
 
         self.attention = Attention(
             in_shape=self.in_shape,
@@ -281,8 +286,8 @@ class NoTransportTransporterAgent(TransporterAgent):
 
 class PerPixelLossTransporterAgent(TransporterAgent):
 
-    def __init__(self, name, task, n_rotations=36, verbose=False):
-        super().__init__(name, task, n_rotations)
+    def __init__(self, name, task, root_dir, n_rotations=36, verbose=False):
+        super().__init__(name, task, root_dir, n_rotations)
 
         self.attention = Attention(
             in_shape=self.in_shape,
@@ -300,8 +305,8 @@ class PerPixelLossTransporterAgent(TransporterAgent):
 class GoalTransporterAgent(TransporterAgent):
     """Goal-Conditioned Transporters supporting a separate goal FCN."""
 
-    def __init__(self, name, task, n_rotations=36, verbose=False):
-        super().__init__(name, task, n_rotations)
+    def __init__(self, name, task, root_dir, n_rotations=36, verbose=False):
+        super().__init__(name, task, root_dir, n_rotations)
 
         self.attention = Attention(
             in_shape=self.in_shape,
@@ -319,8 +324,8 @@ class GoalTransporterAgent(TransporterAgent):
 class GoalNaiveTransporterAgent(TransporterAgent):
     """Naive version which stacks current and goal images through normal Transport."""
 
-    def __init__(self, name, task, n_rotations=36, verbose=False):
-        super().__init__(name, task, n_rotations)
+    def __init__(self, name, task, root_dir, n_rotations=36, verbose=False):
+        super().__init__(name, task, root_dir, n_rotations)
 
         # Stack the goal image for the vanilla Transport module.
         t_shape = (self.in_shape[0], self.in_shape[1],

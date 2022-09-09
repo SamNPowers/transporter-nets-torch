@@ -20,10 +20,11 @@ import os
 os.environ['KMP_DUPLICATE_LIB_OK'] = "TRUE"
 
 
-class Attention:
+class Attention(nn.Module):
     """Attention module."""
 
     def __init__(self, in_shape, n_rotations, preprocess, lite=False, verbose=False):
+        super().__init__()
         self.n_rotations = n_rotations
         self.preprocess = preprocess
 
@@ -38,7 +39,7 @@ class Attention:
         model_type = ResNet36_4s if lite else ResNet43_8s
         self.model = model_type(in_shape[2], 1)
 
-        self.device = to_device([self.model], "Attention", verbose=verbose)
+        #self.device = to_device([self.model], "Attention", verbose=verbose)
 
         self.optimizer = optim.Adam(self.model.parameters(), lr=1e-4)
         self.loss = nn.CrossEntropyLoss(reduction="mean")
@@ -51,7 +52,7 @@ class Attention:
         in_data = self.preprocess(in_data)
         in_shape = (1,) + in_data.shape
         in_data = in_data.reshape(in_shape)
-        in_tens = torch.tensor(in_data, dtype=torch.float32).to(self.device)
+        in_tens = torch.tensor(in_data, dtype=torch.float32) #.to(self.device)
 
         # Rotate input.
         in_tens = apply_rotations_to_tensor(in_tens, self.n_rotations)
@@ -88,7 +89,7 @@ class Attention:
         label_size = in_img.shape[:2] + (self.n_rotations,)
         label = np.zeros(label_size)
         label[p[0], p[1], theta_i] = 1
-        label = torch.tensor(label, dtype=torch.float32).to(self.device)
+        label = torch.tensor(label, dtype=torch.float32) #.to(self.device)
 
         # Get loss.
         label = Rearrange('h w c -> 1 (h w c)')(label)
@@ -131,7 +132,7 @@ class Attention:
             device = "GPU" if self.device.type == "cuda" else "CPU"
             print(
                 f"Loading {bold('attention')} model on {bold(device)} from {bold(path)}")
-        self.model.load_state_dict(torch.load(path, map_location=self.device))
+        self.model.load_state_dict(torch.load(path)) #, map_location=self.device))
 
     def save(self, filename, verbose=False):
         if verbose:

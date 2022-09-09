@@ -18,7 +18,7 @@ from ravens_torch.utils.text import bold
 from ravens_torch.utils.utils import apply_rotations_to_tensor
 
 
-class Transport:
+class Transport(nn.Module):
     """Transport module."""
 
     def __init__(self, in_channels, n_rotations, crop_size, preprocess, verbose=False, name="Transport"):
@@ -30,6 +30,7 @@ class Transport:
           crop_size: crop size around pick argmax used as convolving kernel.
           preprocess: function to preprocess input images.
         """
+        super().__init__()
         self.iters = 0
         self.n_rotations = n_rotations
         self.crop_size = crop_size  # crop size must be N*16 (e.g. 96)
@@ -49,8 +50,8 @@ class Transport:
         self.model_query = ResNet43_8s(in_channels, self.output_dim)
         self.model_key = ResNet43_8s(in_channels, self.kernel_dim)
 
-        self.device = to_device(
-            [self.model_query, self.model_key], name, verbose=verbose)
+        #self.device = to_device(
+        #    [self.model_query, self.model_key], name, verbose=verbose)
 
         self.optimizer_query = optim.Adam(
             self.model_query.parameters(), lr=1e-4)
@@ -103,10 +104,11 @@ class Transport:
         """Forward pass."""
         img_unprocessed = np.pad(in_img, self.padding, mode='constant')
         input_data = self.preprocess(img_unprocessed.copy())
+        input_data = torch.tensor(input_data)  # TODO: where is this supposed to be happening...?
         input_data = Rearrange('h w c -> 1 h w c')(input_data)
         in_tensor = torch.tensor(
             input_data, dtype=torch.float32
-        ).to(self.device)
+        ) #.to(self.device)
 
         # Rotate crop.
         pivot = list(np.array([p[1], p[0]]) + self.pad_size)
@@ -147,8 +149,9 @@ class Transport:
         label[q[0], q[1], itheta] = 1
 
         # Get loss.
+        label = torch.tensor(label)
         label = Rearrange('h w c -> 1 (h w c)')(label)
-        label = torch.tensor(label, dtype=torch.float32).to(self.device)
+        label = torch.tensor(label, dtype=torch.float32) #.to(self.device)
         label = torch.argmax(label, dim=1)
         output = Rearrange('b theta h w -> b (h w theta)')(output)
 
@@ -210,17 +213,17 @@ class Transport:
         query_name = self.format_fname(fname, is_query=True)
         key_name = self.format_fname(fname, is_query=False)
 
-        if verbose:
+        """if verbose:
             device = "GPU" if self.device.type == "cuda" else "CPU"
             print(
                 f"Loading {bold('transport query')} model on {bold(device)} from {bold(query_name)}")
             print(
                 f"Loading {bold('transport key')}   model on {bold(device)} from {bold(key_name)}")
-
+        """
         self.model_query.load_state_dict(
-            torch.load(query_name, map_location=self.device))
+            torch.load(query_name)) #, map_location=self.device))
         self.model_key.load_state_dict(
-            torch.load(key_name, map_location=self.device))
+            torch.load(key_name)) #, map_location=self.device))
 
     def save(self, fname, verbose=False):
         query_name = self.format_fname(fname, is_query=True)
