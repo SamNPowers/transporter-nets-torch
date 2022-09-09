@@ -86,7 +86,7 @@ class TransporterAgent(nn.Module):
 
         return img, p0, p0_theta, p1, p1_theta
 
-    def train(self, dataset, writer=None):
+    def train_agent(self, dataset, writer=None):
         """Train on a dataset sample for 1 iteration.
 
         Args:
@@ -100,11 +100,11 @@ class TransporterAgent(nn.Module):
 
         # Get training losses.
         step = self.total_steps + 1
-        loss0 = self.attention.train(img, p0, p0_theta)
+        loss0 = self.attention.train_module(img, p0, p0_theta)
         if isinstance(self.transport, Attention):
-            loss1 = self.transport.train(img, p1, p1_theta)
+            loss1 = self.transport.train_module(img, p1, p1_theta)
         else:
-            loss1 = self.transport.train(img, p0, p1, p1_theta)
+            loss1 = self.transport.train_module(img, p0, p1, p1_theta)
 
         if writer is not None:
             writer.add_scalars([

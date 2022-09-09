@@ -99,7 +99,7 @@ class Attention(nn.Module):
 
         return loss
 
-    def train(self, in_img, p, theta):
+    def train_module(self, in_img, p, theta):
         """Train."""
         self.metric.reset()
         self.train_mode()

@@ -159,7 +159,7 @@ class Transport(nn.Module):
 
         return loss
 
-    def train(self, in_img, p, q, theta):
+    def train_module(self, in_img, p, q, theta):
         """Transport pixel p to pixel q.
 
         Args:

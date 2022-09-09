@@ -53,7 +53,7 @@ def main(unused_argv):
         # Train agent and save snapshots.
         while agent.total_steps < FLAGS.n_steps:
             for _ in range(FLAGS.interval):
-                agent.train(train_dataset, writer)
+                agent.train_agent(train_dataset, writer)
             agent.validate(test_dataset, writer)
             if agent.total_steps % 1000 == 0:
                 agent.save(FLAGS.verbose)
