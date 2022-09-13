@@ -8,6 +8,7 @@ import os
 
 import torch.nn as nn
 import numpy as np
+import torch
 from ravens_torch.models.attention import Attention
 from ravens_torch.models.transport import Transport
 from ravens_torch.models.transport_ablation import TransportPerPixelLoss
