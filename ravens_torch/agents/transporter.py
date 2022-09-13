@@ -251,20 +251,22 @@ class TransporterAgent(nn.Module):
 
 class OriginalTransporterAgent(TransporterAgent):
 
-    def __init__(self, name, task, root_dir, n_rotations=36, verbose=False):
+    def __init__(self, name, task, root_dir, n_rotations=36, verbose=False, device=None):
         super().__init__(name, task, root_dir, n_rotations)
 
         self.attention = Attention(
             in_shape=self.in_shape,
             n_rotations=1,
             preprocess=utils.preprocess,
-            verbose=verbose)
+            verbose=verbose,
+            device=device)
         self.transport = Transport(
             in_channels=self.in_shape[2],
             n_rotations=self.n_rotations,
             crop_size=self.crop_size,
             preprocess=utils.preprocess,
-            verbose=verbose)
+            verbose=verbose,
+            device=device)
 
 
 class NoTransportTransporterAgent(TransporterAgent):
