@@ -21,7 +21,7 @@ from ravens_torch.utils.utils import apply_rotations_to_tensor
 class Transport(nn.Module):
     """Transport module."""
 
-    def __init__(self, in_channels, n_rotations, crop_size, preprocess, verbose=False, name="Transport", device=None):
+    def __init__(self, in_channels, n_rotations, crop_size, preprocess, verbose=False, name="Transport"):
         """Transport module for placing.
 
         Args:
@@ -50,7 +50,6 @@ class Transport(nn.Module):
         self.model_query = ResNet43_8s(in_channels, self.output_dim)
         self.model_key = ResNet43_8s(in_channels, self.kernel_dim)
 
-        self.device = device
         #self.device = to_device(
         #    [self.model_query, self.model_key], name, verbose=verbose)
 
@@ -109,7 +108,7 @@ class Transport(nn.Module):
         input_data = Rearrange('h w c -> 1 h w c')(input_data)
         in_tensor = torch.tensor(
             input_data, dtype=torch.float32
-        ).to(self.device)
+        ) #.to(self.device)
 
         # Rotate crop.
         pivot = list(np.array([p[1], p[0]]) + self.pad_size)

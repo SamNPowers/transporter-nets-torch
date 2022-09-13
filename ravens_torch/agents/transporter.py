@@ -258,15 +258,13 @@ class OriginalTransporterAgent(TransporterAgent):
             in_shape=self.in_shape,
             n_rotations=1,
             preprocess=utils.preprocess,
-            verbose=verbose,
-            device=device)
+            verbose=verbose)
         self.transport = Transport(
             in_channels=self.in_shape[2],
             n_rotations=self.n_rotations,
             crop_size=self.crop_size,
             preprocess=utils.preprocess,
-            verbose=verbose,
-            device=device)
+            verbose=verbose)
 
 
 class NoTransportTransporterAgent(TransporterAgent):

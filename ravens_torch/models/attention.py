@@ -23,7 +23,7 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = "TRUE"
 class Attention(nn.Module):
     """Attention module."""
 
-    def __init__(self, in_shape, n_rotations, preprocess, lite=False, verbose=False, device=None):
+    def __init__(self, in_shape, n_rotations, preprocess, lite=False, verbose=False):
         super().__init__()
         self.n_rotations = n_rotations
         self.preprocess = preprocess
@@ -40,7 +40,6 @@ class Attention(nn.Module):
         self.model = model_type(in_shape[2], 1)
 
         #self.device = to_device([self.model], "Attention", verbose=verbose)
-        self.device = device
 
         self.optimizer = optim.Adam(self.model.parameters(), lr=1e-4)
         self.loss = nn.CrossEntropyLoss(reduction="mean")
@@ -53,7 +52,7 @@ class Attention(nn.Module):
         in_data = self.preprocess(in_data)
         in_shape = (1,) + in_data.shape
         in_data = in_data.reshape(in_shape)
-        in_tens = torch.tensor(in_data, dtype=torch.float32).to(self.device)
+        in_tens = torch.tensor(in_data, dtype=torch.float32) #.to(self.device)
 
         # Rotate input.
         in_tens = apply_rotations_to_tensor(in_tens, self.n_rotations)
