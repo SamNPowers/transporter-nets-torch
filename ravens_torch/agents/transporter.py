@@ -99,11 +99,11 @@ class TransporterAgent(nn.Module):
 
         img, p0, p0_theta, p1, p1_theta = self.get_sample(dataset)
         device = next(self.attention.parameters()).device  # TODO: pass in?
-        img = torch.tensor(img).to(device)
+        img = torch.tensor(img.copy()).to(device)
         p0 = torch.tensor(p0).to(device)
-        p0_theta = torch.tensor(p0_theta).ta(device)
+        p0_theta = torch.tensor(p0_theta.copy()).ta(device)
         p1 = torch.tensor(p0).to(device)
-        p1_theta = torch.tensor(p0_theta).ta(device)
+        p1_theta = torch.tensor(p0_theta.copy()).ta(device)
 
         # Get training losses.
         step = self.total_steps + 1
