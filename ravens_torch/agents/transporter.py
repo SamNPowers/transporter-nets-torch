@@ -322,7 +322,7 @@ class GoalTransporterAgent(TransporterAgent):
             verbose=verbose)
         self.transport = TransportGoal(
             in_channels=self.in_shape[2],
-            n_rotations=self.n_rotations,
+            num_rotations=self.n_rotations,
             crop_size=self.crop_size,
             preprocess=utils.preprocess,
             verbose=verbose)
