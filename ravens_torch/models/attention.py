@@ -23,7 +23,7 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = "TRUE"
 class Attention(nn.Module):
     """Attention module."""
 
-    def __init__(self, in_shape, n_rotations, preprocess, lite=False, verbose=False):
+    def __init__(self, in_shape, n_rotations, preprocess, lite=False, verbose=False, learning_rate=1e-4):
         super().__init__()
         self.n_rotations = n_rotations
         self.preprocess = preprocess
@@ -41,7 +41,7 @@ class Attention(nn.Module):
 
         #self.device = to_device([self.model], "Attention", verbose=verbose)
 
-        self.optimizer = optim.Adam(self.model.parameters(), lr=1e-4)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
         self.loss = nn.CrossEntropyLoss(reduction="mean")
 
         self.metric = MeanMetrics()
@@ -128,10 +128,10 @@ class Attention(nn.Module):
         self.model.eval()
 
     def load(self, path, verbose=False):
-        if verbose:
-            device = "GPU" if self.device.type == "cuda" else "CPU"
-            print(
-                f"Loading {bold('attention')} model on {bold(device)} from {bold(path)}")
+        #if verbose:
+        #    device = "GPU" if self.device.type == "cuda" else "CPU"
+        #    print(
+        #        f"Loading {bold('attention')} model on {bold(device)} from {bold(path)}")
         self.model.load_state_dict(torch.load(path)) #, map_location=self.device))
 
     def save(self, filename, verbose=False):

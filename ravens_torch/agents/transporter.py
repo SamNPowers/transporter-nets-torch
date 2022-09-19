@@ -16,6 +16,8 @@ from ravens_torch.models.transport_goal import TransportGoal
 from ravens_torch.tasks import cameras
 from ravens_torch.utils import utils
 
+torch.autograd.set_detect_anomaly(True)
+
 
 class TransporterAgent(nn.Module):
     """Agent that uses Transporter Networks."""
@@ -258,20 +260,22 @@ class TransporterAgent(nn.Module):
 
 class OriginalTransporterAgent(TransporterAgent):
 
-    def __init__(self, name, task, root_dir, n_rotations=36, verbose=False, device=None):
+    def __init__(self, name, task, root_dir, n_rotations=36, verbose=False, device=None, learning_rate=1e-4):
         super().__init__(name, task, root_dir, n_rotations)
 
         self.attention = Attention(
             in_shape=self.in_shape,
             n_rotations=1,
             preprocess=utils.preprocess,
-            verbose=verbose)
+            verbose=verbose,
+            learning_rate=learning_rate)
         self.transport = Transport(
             in_channels=self.in_shape[2],
             n_rotations=self.n_rotations,
             crop_size=self.crop_size,
             preprocess=utils.preprocess,
-            verbose=verbose)
+            verbose=verbose,
+            learning_rate=learning_rate)
 
 
 class NoTransportTransporterAgent(TransporterAgent):

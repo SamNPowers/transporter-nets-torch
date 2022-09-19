@@ -21,7 +21,7 @@ from ravens_torch.utils.utils import apply_rotations_to_tensor
 class Transport(nn.Module):
     """Transport module."""
 
-    def __init__(self, in_channels, n_rotations, crop_size, preprocess, verbose=False, name="Transport"):
+    def __init__(self, in_channels, n_rotations, crop_size, preprocess, verbose=False, name="Transport", learning_rate=1e-4):
         """Transport module for placing.
 
         Args:
@@ -54,8 +54,8 @@ class Transport(nn.Module):
         #    [self.model_query, self.model_key], name, verbose=verbose)
 
         self.optimizer_query = optim.Adam(
-            self.model_query.parameters(), lr=1e-4)
-        self.optimizer_key = optim.Adam(self.model_key.parameters(), lr=1e-4)
+            self.model_query.parameters(), lr=learning_rate)
+        self.optimizer_key = optim.Adam(self.model_key.parameters(), lr=learning_rate)
         self.loss = torch.nn.CrossEntropyLoss(reduction='mean')
 
         self.metric = MeanMetrics()
